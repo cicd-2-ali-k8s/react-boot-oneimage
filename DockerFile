@@ -1,5 +1,5 @@
 # compile stage with name "builder"
-FROM maven:3.6.3 as builder
+FROM maven:3.8.1 as builder
 COPY . /usr/src/build
 WORKDIR /usr/src/build
 RUN mvn verify
