@@ -36,7 +36,7 @@ pipeline {
         stage('Build Deploy Code') {
             steps {
                 sh """
-                echo "Building Artifact"
+                echo "Building Artifact Docker"
                 """
 
                 sh """
