@@ -25,15 +25,16 @@ pipeline {
             }
         }
 
-        stage('Code Analysis') {
+        stage('Build Docker Image') {
             steps {
                 sh """
                 echo "Running Code Analysis"
+                docker build . -t registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1
                 """
             }
         }
 
-        stage('Build Deploy Code') {
+        stage('Deploy Image') {
             steps {
                 sh """
                 echo "Building Artifact Docker"
