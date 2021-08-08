@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-boot-deployment
+  labels:
+    module: demo
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      module: demo
+  template:
+    metadata:
+      labels:
+        module: demo
+    spec:
+      imagePullSecrets:
+      - name: ali-registry
+      containers:
+      - name: react-boot
+        image: registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1
+        ports:
+        - containerPort: 8080
+          name: react-boot-port
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            memory: 800Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-boot-service
+  labels:
+    module: demo
+  namespace: demo
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: react-boot-port
+  selector:
+    module: demo
+  type: ClusterIP
+
+
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: react-boot-ingress
+  labels:
+    module: demo
+  namespace: demo
+spec:
+  rules:
+  - host: react-boot.c21e66783d1c340fc9b6c3be155df5c2f.cn-shanghai.alicontainer.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: react-boot-service
+          servicePort: 80
+
+
