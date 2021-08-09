@@ -10,38 +10,41 @@ pipeline {
         
         stage(' Unit Testing') {
             steps {
-                sh """
+                sh '''
                 echo "Running Unit Tests"
-                """
+                '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh """
+                sh '''
                 echo "build docker image"
-                docker build . -t registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1
-                """
+                echo "docker build . -t registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1"
+                '''
             }
         }
 
         stage('Publish Docker Image') {
             steps {
-                sh """
-                echo "login to registry"
-                cat dockerpwd | docker login -u=vicwu_sh --password-stdin registry-vpc.cn-shanghai.aliyuncs.com
-                echo "push Image"
-                docker push registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1
-                """
+                withCredentials([usernamePassword(credentialsId: 'docker-login', 
+                            usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh '''
+                    echo "login to registry"
+                    docker login -u=${USERNAME} --password=${PASSWORD} registry-vpc.cn-shanghai.aliyuncs.com
+                    echo "push Image"
+                    docker push registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1
+                    '''
+                }
             }
         }
 
         stage('Deploy to K8s') {
             steps {
-                sh """
+                sh '''
                 echo "Deploy to k8s"
-                kubctl apply -f all-in-one.yaml
-                """
+                echo "kubectl apply -f all-in-one.yaml"
+                '''
             }
         }
 
