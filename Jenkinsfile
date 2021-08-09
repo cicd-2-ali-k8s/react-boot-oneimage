@@ -10,30 +10,43 @@ pipeline {
         
         stage(' Unit Testing') {
             steps {
-                sh """
+                sh '''
                 echo "Running Unit Tests"
-                """
+                '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                echo "Running Code Analysis"
+                sh '''
+                echo "build docker image"
                 docker build . -t registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1
-                """
+                '''
             }
         }
 
-        stage('Deploy Image') {
+        stage('Publish Docker Image') {
             steps {
-                sh """
-                echo "Building Artifact Docker"
-                """
+                withCredentials([usernamePassword(credentialsId: 'docker-login', 
+                            usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh '''
+                    echo "login to registry"
+                    docker login -u=${USERNAME} --password=${PASSWORD} registry-vpc.cn-shanghai.aliyuncs.com
+                    echo "push Image"
+                    docker push registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1
+                    '''
+                }
+            }
+        }
 
-                sh """
-                echo "Deploying Code"
-                """
+        stage('Deploy to K8s') {
+            steps {
+                withCredentials([file(credentialsId: 'kubectl.config', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    echo "Deploy to k8s"
+                    /usr/local/bin/kubectl apply -f all-in-one.yaml
+                    '''
+                }
             }
         }
 
