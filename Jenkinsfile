@@ -20,7 +20,7 @@ pipeline {
             steps {
                 sh '''
                 echo "build docker image"
-                echo "docker build . -t registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1"
+                docker build . -t registry-vpc.cn-shanghai.aliyuncs.com/k8s-demo-vic/react-boot:0.1
                 '''
             }
         }
@@ -41,14 +41,12 @@ pipeline {
 
         stage('Deploy to K8s') {
             steps {
-                //node { ws {
-                    withCredentials([file(credentialsId: 'kubectl.config', variable: 'KUBECONFIG')]) {
-                        sh '''
-                        echo "Deploy to k8s"
-                        /usr/local/bin/kubectl apply -f all-in-one.yaml
-                        '''
-                    }
-                //} }
+                withCredentials([file(credentialsId: 'kubectl.config', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    echo "Deploy to k8s"
+                    /usr/local/bin/kubectl apply -f all-in-one.yaml
+                    '''
+                }
             }
         }
 
