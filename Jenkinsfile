@@ -41,10 +41,14 @@ pipeline {
 
         stage('Deploy to K8s') {
             steps {
-                sh '''
-                echo "Deploy to k8s"
-                echo "kubectl apply -f all-in-one.yaml"
-                '''
+                //node { ws {
+                    withCredentials([file(credentialsId: 'kubectl.config', variable: 'KUBECONFIG')]) {
+                        sh '''
+                        echo "Deploy to k8s"
+                        /usr/local/bin/kubectl apply -f all-in-one.yaml
+                        '''
+                    }
+                //} }
             }
         }
 
